@@ -1,3 +1,5 @@
+import argparse
+
 # torch
 import torch
 
@@ -56,8 +58,14 @@ class SamplePredictor:
 
 if __name__ == '__main__':
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--question', type=str, default="How many Mars Bars fit in a room"?)
+
+    args = parser.parse_args
+    question = args.question
+
     predictor = SamplePredictor()
-    question = "How many Mars Bars fit in a room?"
+
     print("Answering: {}".format(question))
     prediction = predictor.predict(question)
     compiled_answer = compile_fp(prediction['context'], prediction['program'])
