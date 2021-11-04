@@ -6,7 +6,7 @@ import torch
 # init hugging face
 from transformers import T5Config, T5Tokenizer, T5ForConditionalGeneration
 
-from eval_utils import compile_fp
+from eval_utils import compile_fp, convert_units
 
 class SamplePredictor:
     def __init__(self, model_path, device='cpu', max_len=500, num_beams=1):
@@ -49,12 +49,21 @@ class SamplePredictor:
             early_stopping=True
             )
         preds = self.tokenizer.decode(generated_ids.squeeze(), skip_special_tokens=True, clean_up_tokenization_spaces=True)
-        answer, program, context = self.split_context_program(preds.split("="))
-        return {"question": question,
-                "direct_answer": answer, 
-                "context": ';'.join(context.split('=')),
-                "program": ';'.join(program.split('='))
-                }
+        try:
+            answer, program, context = self.split_context_program(preds.split("="))
+            compiled_answer = compile_fp(context, program)
+            compiled_out, compiled_units = convert_units(compiled_answer['P'])
+
+            return {"question": question,
+                    "direct_answer": answer, 
+                    "context": ';'.join(context.split('=')),
+                    "program": ';'.join(program.split('=')),
+                    "raw_outputs": preds,
+                    "compiled_answer": compiled_out,
+                    "compiled_units": compiled_units
+                    }
+        except:
+            return {"raw_outputs": preds}
 
 if __name__ == '__main__':
 
@@ -69,5 +78,7 @@ if __name__ == '__main__':
 
     print("Answering: {}".format(question))
     prediction = predictor.predict(question)
-    compiled_answer = compile_fp(prediction['context'], prediction['program'])
-    print("Direct Answer is: {}\n Compiled Answer is: {}\n Supporting Facts are: {}\n Program: {}".format(prediction['direct_answer'], compiled_answer, prediction['context'], prediction['program']))
+    if len(prediction) > 1:
+        print("Direct Answer is: {}\nCompiled Answer is: {} ({})\nSupporting Facts are: {}\nProgram: {}".format(prediction['direct_answer'], prediction['compiled_answer'], prediction['compiled_units'], prediction['context'], prediction['program']))
+    else:
+        print("Unable to parse output; Outputting Raw Output:\n{}".format(prediction))
