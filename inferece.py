@@ -50,8 +50,8 @@ class SamplePredictor:
             )
         preds = self.tokenizer.decode(generated_ids.squeeze(), skip_special_tokens=True, clean_up_tokenization_spaces=True)
         answer, program, context = self.split_context_program(preds.split("="))
-        return {"question": input_json['question'],
-                "direct answer": answer, 
+        return {"question": question,
+                "direct_answer": answer, 
                 "context": ';'.join(context.split('=')),
                 "program": ';'.join(program.split('='))
                 }
@@ -59,14 +59,15 @@ class SamplePredictor:
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--question', type=str, default="How many Mars Bars fit in a room"?)
+    parser.add_argument('--question', type=str, default="How many Mars Bars fit in a room?")
+    parser.add_argument('--model_path', type=str, default="./fermi_realfp_model.pth")
 
-    args = parser.parse_args
+    args = parser.parse_args()
     question = args.question
 
-    predictor = SamplePredictor()
+    predictor = SamplePredictor(model_path=args.model_path)
 
     print("Answering: {}".format(question))
     prediction = predictor.predict(question)
     compiled_answer = compile_fp(prediction['context'], prediction['program'])
-    print("Direct Answer is: {}\n Compiled Answer is: {}\n Supporting Facts are: {}\n Program: {}".format(prediction['answer'], compiled_answer, prediction['context'], prediction['program']))
+    print("Direct Answer is: {}\n Compiled Answer is: {}\n Supporting Facts are: {}\n Program: {}".format(prediction['direct_answer'], compiled_answer, prediction['context'], prediction['program']))

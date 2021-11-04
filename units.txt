@@ -1,0 +1,6 @@
+person = _ = people
+sheet = _ = sheets
+pa = 1 * pascal
+factorial = _
+gm = 1 * g
+Newton = 1 * newton
