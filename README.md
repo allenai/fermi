@@ -1,6 +1,8 @@
 # Fermi Problems: A New Reasoning Challenge for AI
 
-This repository provides the following two datasets:
+Fermi Problems are questions whose answer is a number that can only be reasonably estimated as a precise measurement of the value is either impossible or impractical. 
+
+This repository provides two datasets of such fermi problems along with annotations for the solution:
 - RealFP @ `./data/realFP`. A collection of 928 fermi problems and their solutions expressed in the form a program.
 - SynthFP @ `.data/synthFP`. An auxilliary set of 10000 templated fermi questions, created by the authors.
 
